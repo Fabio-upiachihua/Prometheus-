@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+  indexjs-service:
+    build: .
+    ports:
+      - "3003:8080"  # Mapea el puerto 8080 del contenedor al puerto 3003 en el host
+    networks:
+      - localprom
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9091:9090"  # Mapea el puerto 9090 del contenedor al puerto 9091 en el host
+    volumes:
+      - ./prometheus_data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    networks:
+      - localprom
+    depends_on:
+      - indexjs-service
+      - node_exporter
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3001:3000"  # Mapea el puerto 3000 del contenedor al puerto 3001 en el host
+    volumes:
+      - ./grafana_data:/var/lib/grafana
+    networks:
+      - localprom
+    depends_on:
+      - prometheus
+
+  node_exporter:
+    image: prom/node-exporter
+    ports:
+      - "8080:8080"  # Mapea el puerto 8080 del contenedor al puerto 8080 en el host
+    networks:
+      - localprom
+
+networks:
+  localprom:
+    driver: bridge

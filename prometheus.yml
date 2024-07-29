@@ -1,0 +1,25 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['prometheus:9090']  # Ajustado para el nombre del contenedor
+
+  - job_name: 'actuator_metrics'
+    metrics_path: '/actuator/metrics'
+    scheme: https
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    tls_config:
+      insecure_skip_verify: true
+    static_configs:
+      - targets: ['lobby-bff.apiusoft.com:443']
+
+  - job_name: 'nodejs_service'
+    static_configs:
+      - targets: ['indexjs-service:8080']  # Ajustado para el puerto 8080 del contenedor
+
+  - job_name: 'node_exporter'
+    static_configs:
+      - targets: ['node_exporter:8080']  # Ajustado para el nombre del contenedor de node_exporter
